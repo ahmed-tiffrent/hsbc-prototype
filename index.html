@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HSBC Re-design Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="icon" href="assets/hsbc.png">
+<style>
+/* Tokens mirror the Figma variables: HSBC / Primitives + HSBC / Semantic. */
+:root{
+  --red-50:#F8CCCF; --red-100:#F099A0; --red-500:#DA0011; --red-600:#AE000E; --red-700:#83000A;
+  --n0:#FFFFFF; --n50:#F4F4F4; --n100:#E2E2E2; --n200:#C7C7C7; --n300:#919191; --n400:#606060; --n500:#333333; --n700:#000000;
+  --green-100:#E7FAF0; --green-700:#0E954A; --amber-100:#FFF7EA; --amber-500:#FFAA0F; --amber-700:#B86200; --blue-100:#E6EEFF; --blue-500:#0A84FF; --blue-700:#004CDF;
+  --bg-brand:var(--red-600); --text-primary:var(--n500); --text-secondary:var(--n400);
+  --font:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --stage:#ECECEC; --stage-ink:#1F1F1F; --stage-ink2:#606060; --stage-card:#FFFFFF; --stage-line:#DADADA;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--stage:#111111;--stage-ink:#F4F4F4;--stage-ink2:#A6A6A6;--stage-card:#1C1C1C;--stage-line:#2C2C2C;color-scheme:dark}}
+:root[data-theme="dark"]{--stage:#111111;--stage-ink:#F4F4F4;--stage-ink2:#A6A6A6;--stage-card:#1C1C1C;--stage-line:#2C2C2C;color-scheme:dark}
+
+html,body{height:100%;margin:0}
+body{background:var(--stage);color:var(--stage-ink);font-family:var(--font);overflow:hidden;padding:0 max(16px, env(safe-area-inset-left, 0px))}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid var(--blue-500);outline-offset:2px}
+
+/* ---------- stage ---------- */
+.stage{height:100%;display:flex;align-items:center;justify-content:center;gap:56px}
+.side{width:260px;display:flex;flex-direction:column;gap:20px}
+.side h1{font-size:28px;font-weight:600;line-height:34px;margin:0;letter-spacing:-.02em}
+.side p{margin:0;color:var(--stage-ink2);font-size:14px;line-height:21px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--red-500)}
+.flows{display:flex;flex-direction:column;border:1px solid var(--stage-line);border-radius:14px;background:var(--stage-card);overflow:hidden}
+.flows button{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;font-size:14px;text-align:left;border-top:1px solid var(--stage-line)}
+.flows button:first-child{border-top:0}
+.flows button:hover{background:color-mix(in srgb,var(--red-500) 8%,transparent)}
+.flows button span:last-child{color:var(--stage-ink2);font-size:12px}
+.hint{font-size:12px;color:var(--stage-ink2);line-height:18px}
+.device{position:relative;width:393px;height:852px;flex:none;transform-origin:center center}
+.bezel{position:absolute;inset:-12px;border-radius:60px;background:#0B0B0B;box-shadow:0 40px 80px -20px rgba(0,0,0,.35),0 0 0 1.5px #3a3a3a inset}
+.screen-wrap{position:absolute;inset:0;border-radius:48px;overflow:hidden;background:#fff;isolation:isolate}
+@media (max-width:760px){.side{display:none}}
+@media (max-width:480px){
+  body{padding:0}
+  .stage{display:block}
+  .device{width:100%;height:100%;transform:none!important}
+  .bezel{display:none}
+  .screen-wrap{border-radius:0}
+}
+
+/* ---------- app shell ---------- */
+.app{position:absolute;inset:0;color:var(--text-primary);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none}
+.scr{position:absolute;inset:0;overflow:hidden;background:#fff;will-change:transform}
+.scr .bg{position:absolute;inset:0;background-size:cover;background-position:center top;transition:opacity .5s ease}
+.anim-in-right{animation:inR .42s cubic-bezier(.22,.8,.24,1) both;z-index:4}
+.anim-out-left{animation:outL .42s cubic-bezier(.22,.8,.24,1) both}
+.anim-in-left{animation:inL .42s cubic-bezier(.22,.8,.24,1) both}
+.anim-out-right{animation:outR .42s cubic-bezier(.22,.8,.24,1) both;z-index:5}
+@keyframes inR{from{transform:translateX(100%)}to{transform:none}}
+@keyframes outL{to{transform:translateX(-28%);filter:brightness(.9)}}
+@keyframes inL{from{transform:translateX(-28%);filter:brightness(.9)}to{transform:none}}
+@keyframes outR{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.ic{width:24px;height:24px;flex:none;display:inline-flex}
+.ic svg{width:100%;height:100%;display:block}
+.ic.s16{width:16px;height:16px}.ic.s18{width:18px;height:18px}.ic.s20{width:20px;height:20px}.ic.s22{width:22px;height:22px}.ic.s28{width:28px;height:28px}.ic.s32{width:32px;height:32px}
+.img16{width:16px;height:16px;flex:none}
+
+/* status bar + island */
+.status{position:absolute;left:0;right:0;top:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:4px 32px 0 48px;font-weight:600;font-size:17px;color:#000;z-index:30;pointer-events:none;font-family:-apple-system,"SF Pro Text",var(--font)}
+.status .lv{display:flex;gap:6px;align-items:center}
+.island{position:absolute;left:50%;top:11px;width:122px;height:36px;margin-left:-61px;border-radius:20px;background:#000;z-index:31;pointer-events:none}
+.home-ind{position:absolute;left:50%;bottom:8px;width:139px;height:5px;margin-left:-70px;border-radius:100px;background:#000;z-index:30;pointer-events:none}
+
+/* glass icon button (Button/Icon) */
+.gbtn{width:48px;height:48px;border-radius:100px;background:rgba(96,96,96,.95);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.5);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;transition:transform .15s ease,background .2s}
+.gbtn.s44{width:44px;height:44px}
+.gbtn:active{transform:scale(.92)}
+
+.top{position:absolute;left:18px;right:18px;top:76px;height:48px;display:flex;justify-content:space-between;align-items:center;z-index:6}
+.top .grp{display:flex;gap:4px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:50%;background:url(assets/avatar.png) center/cover;box-shadow:2px 4px 20px rgba(0,0,0,.16)}
+
+/* account header */
+.acct{position:absolute;left:0;right:0;top:156px;height:130px;z-index:5;touch-action:pan-y}
+.acct-track{display:flex;width:200%;height:100%;transition:transform .45s cubic-bezier(.22,.8,.24,1)}
+.acct-pane{width:50%;height:100%;position:relative}
+.acct-name{font-size:18px;font-weight:500;line-height:24px;color:#1F1F1F;text-align:center}
+.acct-no{font-size:14px;line-height:20px;color:#1F1F1F;text-align:center;margin-top:1px}
+.bal{position:absolute;left:0;right:0;top:63px;display:flex;justify-content:center;align-items:center;gap:12px;height:48px}
+.bal .amt{font-size:40px;line-height:48px;font-weight:700;color:#000;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.bal .amt small{font-size:36px;font-weight:600;margin-right:1px}
+.bal .amt.hidden{letter-spacing:.08em}
+.bal .eye{color:var(--n400);width:32px;height:32px}
+.gma-head{position:absolute;left:48px;right:48px;top:0;display:flex;align-items:center;justify-content:space-between}
+.gma-head .acct-name,.gma-head .acct-no{text-align:center}
+.gma-head .acct-no{font-size:12px;letter-spacing:.01em}
+.cur{height:48px;min-width:92px;padding:0 14px 0 20px;border-radius:24px;background:rgba(96,96,96,.95);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.5);color:#fff;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:500}
+.cur .ic{width:20px;height:20px}
+.arrows{position:absolute;left:4px;right:4px;top:219px;display:flex;justify-content:space-between;z-index:6;pointer-events:none}
+.arrows .gbtn{pointer-events:auto}
+.arrows .gbtn[disabled]{opacity:.35;pointer-events:none}
+.dots{position:absolute;left:0;right:0;top:279px;display:flex;justify-content:center;gap:6px;z-index:5}
+.dots i{height:6px;width:6px;border-radius:6px;background:var(--red-100);transition:width .3s ease,background .3s ease}
+.dots i.on{width:24px;background:var(--red-600)}
+
+/* action buttons (Button/Action) */
+.actions{position:absolute;left:18px;right:18px;top:326px;display:flex;flex-direction:column;gap:12px;z-index:5}
+.actions .row{display:flex;gap:12px}
+.abtn{height:50px;padding:0 20px;border-radius:12px;background:var(--bg-brand);color:#fff;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:500;white-space:nowrap;transition:transform .12s ease,background .2s}
+.abtn:active{transform:scale(.96);background:var(--red-700)}
+.abtn .ic{width:16px;height:16px}
+.row.r1 .abtn{flex:1 1 auto;justify-content:center}
+
+/* transactions sheet */
+.txsheet{position:absolute;left:0;right:0;top:459px;bottom:0;background:var(--n100);border-radius:24px 24px 0 0;padding-top:12px;z-index:4}
+.tx{display:flex;align-items:center;gap:20px;height:74px;padding:14px 16px}
+.tx .av{width:40px;height:40px;border-radius:50%;flex:none;position:relative;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#fff}
+.tx .av.m{background:#EC7E00}
+.tx .av.logo{background:#CCCBF5 url(assets/behance.png) center/40px 40px}
+.tx .av.gma{background:#1F1F1F;font-size:13px}
+.tx .av .badge{position:absolute;right:-3px;bottom:-3px;width:18px;height:18px;border-radius:50%;border:2px solid var(--n100);display:flex;align-items:center;justify-content:center}
+.tx .av .badge.p{background:var(--amber-500)}
+.tx .av .badge.c{background:var(--blue-500);color:#fff}
+.tx .av .badge.c .ic{width:12px;height:12px}
+.tx .av .badge.in{background:var(--green-700);color:#fff}
+.tx .grow{flex:1;min-width:0}
+.tx .t{font-size:16px;line-height:22px;font-weight:600;color:#1F1F1F}
+.tx .s{font-size:14px;line-height:20px;color:var(--n400);white-space:nowrap}
+.tx .s b{font-weight:500}
+.tx .s .pend{color:var(--amber-700)}
+.tx .s .done{color:var(--green-700)}
+.tx .amt{align-self:flex-start;font-size:14px;font-weight:600;color:#1F1F1F;padding-top:2px;font-variant-numeric:tabular-nums}
+.tx .amt.plus{color:var(--green-700)}
+.tx.new{animation:txIn .5s cubic-bezier(.22,.8,.24,1) both}
+@keyframes txIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.seeall{display:block;margin:0 auto;font-size:16px;line-height:22px;font-weight:600;color:#000;padding:6px 12px}
+
+/* tab bar (Navigation/Tab Bar) */
+.tabbar{position:absolute;left:16px;right:16px;bottom:16px;height:97px;border-radius:48px;background:rgba(255,255,255,.96);box-shadow:0 8px 80px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:space-between;padding:16px;z-index:20}
+.tab{width:82px;height:64px;border-radius:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:#1F1F1F;transition:background .25s ease,color .25s ease}
+.tab .ic{color:var(--n500);transition:color .25s}
+.tab.on{background:var(--bg-brand);color:#fff;font-weight:600}
+.tab.on .ic{color:#fff}
+
+/* more menu (Menu/Dropdown) */
+.blurwrap{position:absolute;inset:0;transition:filter .3s ease}
+.home.menu-open .blurwrap{filter:blur(6px)}
+.scrim{position:absolute;inset:0;z-index:15;display:none}
+.home.menu-open .scrim{display:block}
+.menu{position:absolute;right:16px;top:499px;width:235px;background:rgba(255,255,255,.92);border-radius:12px 12px 0 0;overflow:hidden;z-index:16;transform-origin:85% 100%;transform:scale(.6) translateY(40px);opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.22,.8,.24,1),opacity .2s ease;box-shadow:0 10px 40px rgba(0,0,0,.08)}
+.home.menu-open .menu{transform:none;opacity:1;pointer-events:auto}
+.menu button{display:flex;align-items:center;gap:12px;width:100%;height:47px;padding:0 20px 0 32px;font-size:16px;font-weight:600;color:#1F1F1F;border-top:1px solid var(--n50);text-align:left}
+.menu button:first-child{border-top:0}
+.menu button:active{background:var(--n50)}
+.menu .ic{color:var(--n500)}
+.menu img{width:22px;height:22px}
+
+/* sub-screen chrome */
+.nav{position:absolute;left:18px;right:18px;top:76px;height:48px;display:flex;align-items:center;justify-content:space-between;z-index:6}
+.nav .title{position:absolute;left:56px;right:56px;text-align:center;font-size:18px;font-weight:500;line-height:24px;color:#1F1F1F;pointer-events:none}
+.nav .title.left{text-align:left;left:48px}
+.from{position:absolute;left:14px;right:14px;top:140px;height:72px;border-radius:12px;background:var(--bg-brand);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;text-align:left;z-index:5}
+.from .k{font-size:16px;font-weight:600;line-height:22px}
+.from .v{font-size:14px;line-height:20px;opacity:.95}
+.from .r{display:flex;align-items:center;gap:6px;font-size:16px;font-weight:600}
+.from .r .ic{width:16px;height:16px}
+
+/* pay */
+.opts{position:absolute;left:16px;right:16px;top:284px;display:flex;flex-direction:column;gap:10px;z-index:5}
+.opt{height:100px;border-radius:12px;background:var(--n50);display:flex;align-items:center;gap:24px;padding:0 16px 0 16px;text-align:left;transition:transform .15s ease,background .2s}
+.opt:active{transform:scale(.98);background:#EAEAEA}
+.opt img{width:40px;height:40px;flex:none}
+.opt .grow{flex:1}
+.opt .k{font-size:16px;font-weight:600;line-height:22px;color:#1F1F1F}
+.opt .v{font-size:14px;line-height:20px;color:var(--n400);white-space:nowrap}
+.opt .ic{width:16px;height:16px;color:#1F1F1F}
+
+/* convert */
+.conv{position:absolute;left:14px;right:14px;top:228px;height:268px;border-radius:12px;background:var(--n50);box-shadow:0 4px 20px rgba(0,0,0,.06);z-index:5}
+.conv .blk{position:absolute;left:20px;right:20px}
+.conv .lbl{font-size:16px;line-height:22px;color:#1F1F1F}
+.conv .line{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.ccy{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:500;color:#1F1F1F;padding:0}
+.ccy img{width:45px;height:45px;border-radius:50%}
+.ccy .ic{width:20px;height:20px;margin-left:-6px;color:var(--n500);opacity:.6}
+.amtbox{width:117px;height:45px;border-radius:8px;background:var(--n100);display:flex;align-items:center;justify-content:flex-end;padding:0 16px;font-size:20px;font-weight:600;color:#1F1F1F;font-variant-numeric:tabular-nums;position:relative}
+.amtbox input{position:absolute;inset:0;width:100%;border:0;background:transparent;font:inherit;color:inherit;text-align:right;padding:0 16px;outline:0;border-radius:8px}
+.amtbox:focus-within{box-shadow:0 0 0 2px var(--red-600)}
+.conv .divider{position:absolute;left:0;right:0;top:133px;height:1px;background:var(--n100)}
+.swapbtn{position:absolute;left:50%;top:111px;width:44px;height:44px;margin-left:-22px;border-radius:50%;background:var(--bg-brand);color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .4s cubic-bezier(.22,.8,.24,1)}
+.swapbtn .ic{width:22px;height:22px}
+.chip{position:absolute;left:18px;right:18px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:16px;font-weight:600;z-index:5}
+.chip img{width:24px;height:24px}
+.chip.ok{top:513px;background:var(--green-100);color:var(--green-700)}
+.chip.info{top:568px;background:var(--blue-100);color:var(--blue-700)}
+.chip.info img{filter:hue-rotate(95deg) saturate(1.3)}
+.cta{position:absolute;left:16px;right:16px;top:728px;height:60px;border-radius:12px;background:var(--bg-brand);color:#fff;font-size:20px;font-weight:500;z-index:5;transition:transform .12s ease,background .2s}
+.cta:active{transform:scale(.98);background:var(--red-700)}
+.ddmenu{position:absolute;width:200px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.16);overflow:hidden;z-index:40;opacity:0;transform:translateY(-6px) scale(.97);transform-origin:20% 0;pointer-events:none;transition:opacity .18s ease,transform .22s cubic-bezier(.22,.8,.24,1)}
+.ddmenu.open{opacity:1;transform:none;pointer-events:auto}
+.ddmenu button{display:flex;align-items:center;gap:12px;width:100%;height:48px;padding:0 16px;font-size:16px;font-weight:500;color:#1F1F1F;border-top:1px solid var(--n50);text-align:left}
+.ddmenu button:first-child{border-top:0}
+.ddmenu button img{width:28px;height:28px;border-radius:50%}
+.ddmenu button .fl{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;background:#003399}
+.ddmenu button.sel{background:var(--n50)}
+.ddmenu button .tick{margin-left:auto;color:var(--red-600);width:20px;height:20px}
+
+/* cards */
+.cardwrap{position:absolute;left:0;right:0;top:140px;height:218px;z-index:5;touch-action:pan-y}
+.ctrack{display:flex;height:100%;transition:transform .45s cubic-bezier(.22,.8,.24,1)}
+.dcard{flex:none;width:343px;height:218px;margin:0 25px;border-radius:12px;background:#1F1F1F;color:#fff;position:relative;overflow:hidden;box-shadow:0 18px 40px -16px rgba(0,0,0,.45)}
+.dcard.red{background:linear-gradient(135deg,#C4000F,#83000A)}
+.dcard .logo{position:absolute;left:20px;top:28px;width:52px;height:26px;background:url(assets/hsbc.png) center/contain no-repeat}
+.dcard.red .logo{filter:brightness(0) invert(1)}
+.dcard .visa{position:absolute;right:80px;top:28px;width:60px;height:20px;background:url(assets/visa.png) center/contain no-repeat}
+.dcard .chipimg{position:absolute;right:20px;top:24px;width:42px;height:32px;background:url(assets/chip.png) center/contain no-repeat}
+.dcard .num{position:absolute;left:24px;top:90px;font-size:20px;font-weight:600;line-height:28px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.dcard .meta{position:absolute;left:24px;right:24px;top:158px;display:flex;justify-content:space-between}
+.dcard .meta div{display:flex;flex-direction:column;gap:2px}
+.dcard .meta span{font-size:12px;line-height:20px;opacity:.95}
+.dcard .meta b{font-size:12px;font-weight:600;line-height:16px;letter-spacing:.04em}
+.dcard .reveal{transition:opacity .25s ease}
+.dcard .frost{position:absolute;inset:0;background:linear-gradient(135deg,rgba(214,234,255,.75),rgba(160,200,240,.55));backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;gap:10px;color:#0B3A6E;font-weight:600;font-size:16px;opacity:0;transition:opacity .35s ease;pointer-events:none}
+.dcard.frozen .frost{opacity:1}
+.dcard .frost .ic{width:28px;height:28px}
+.carrows{position:absolute;left:8px;right:8px;top:372px;display:flex;justify-content:space-between;z-index:6}
+.carrows .gbtn{width:40px;height:40px}
+.carrows .gbtn[disabled]{opacity:.35;pointer-events:none}
+.cdots{position:absolute;left:0;right:0;top:389px;display:flex;justify-content:center;gap:6px;z-index:5}
+.cdots i{height:6px;width:6px;border-radius:6px;background:var(--red-100);transition:width .3s ease,background .3s}
+.cdots i.on{width:24px;background:var(--red-600)}
+.showbtn{position:absolute;left:50%;top:430px;transform:translateX(-50%);height:50px;min-width:160px;padding:0 20px;border-radius:12px;background:var(--bg-brand);color:#fff;font-size:14px;font-weight:500;z-index:5;transition:background .2s}
+.showbtn:active{background:var(--red-700)}
+.csheet{position:absolute;left:0;right:0;top:500px;bottom:0;background:var(--n100);border-radius:32px 32px 0 0;z-index:5}
+.seg{position:absolute;left:49px;right:49px;top:12px;height:54px;border-radius:16px;background:#fff;padding:8px;display:flex}
+.seg button{flex:1;position:relative;z-index:1;font-size:16px;font-weight:500;color:#1F1F1F;transition:color .25s}
+.seg button.on{color:#fff}
+.seg .pill{position:absolute;top:8px;bottom:8px;left:8px;width:calc(50% - 8px);border-radius:10px;background:var(--bg-brand);transition:transform .32s cubic-bezier(.22,.8,.24,1)}
+.seg.tx .pill{transform:translateX(100%)}
+.cpanel{position:absolute;left:32px;right:32px;top:82px;display:flex;flex-direction:column;gap:12px;transition:opacity .25s ease,transform .3s ease}
+.cpanel.hide{opacity:0;transform:translateY(8px);pointer-events:none}
+.caction{height:48px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;gap:12px;font-size:14px;font-weight:600;color:#1F1F1F;transition:transform .12s ease,background .2s}
+.caction:active{transform:scale(.98)}
+.caction .ic{color:var(--red-500);width:28px;height:28px}
+.caction.active{background:#E4F0FF;color:#0B3A6E}
+.caction.active .ic{color:var(--blue-700)}
+.ctx{left:16px;right:16px;gap:0}
+.ctx .tx{height:66px;padding:10px 16px;background:#fff;border-radius:12px;margin-bottom:8px}
+.ctx .tx .av .badge{border-color:#fff}
+
+/* bottom sheet + toast */
+.sheet-scrim{position:absolute;inset:0;background:rgba(0,0,0,.35);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.sheet-scrim.open{opacity:1;pointer-events:auto}
+.bsheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:32px 32px 0 0;padding:12px 24px 40px;z-index:51;transform:translateY(105%);transition:transform .42s cubic-bezier(.22,.8,.24,1)}
+.bsheet.open{transform:none}
+.bsheet .grab{width:40px;height:5px;border-radius:5px;background:var(--n200);margin:0 auto 20px}
+.bsheet h3{margin:0 0 6px;font-size:20px;line-height:26px;font-weight:600;color:#1F1F1F}
+.bsheet p{margin:0;color:var(--n400);font-size:14px;line-height:20px}
+.bsheet .done{margin-top:24px;width:100%;height:56px;border-radius:12px;background:var(--bg-brand);color:#fff;font-size:18px;font-weight:500}
+.bsheet .done:active{background:var(--red-700)}
+.okring{width:72px;height:72px;border-radius:50%;background:var(--green-100);color:var(--green-700);display:flex;align-items:center;justify-content:center;margin:4px 0 18px}
+.okring .ic{width:36px;height:36px}
+.okring svg path{stroke-dasharray:24;stroke-dashoffset:24}
+.bsheet.open .okring svg path{animation:draw .5s .25s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.kv{margin-top:18px;border-radius:12px;background:var(--n50);overflow:hidden}
+.kv div{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-top:1px solid var(--n100);font-size:14px}
+.kv div:first-child{border-top:0}
+.kv span{color:var(--n400)}
+.kv b{font-weight:600;color:#1F1F1F;display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.kv b .ic{width:18px;height:18px;color:var(--n400)}
+.pin{display:flex;gap:12px;justify-content:center;margin:22px 0 4px}
+.pin i{width:56px;height:64px;border-radius:12px;background:var(--n50);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:28px;font-weight:700;color:#1F1F1F}
+.toast{position:absolute;left:50%;bottom:132px;transform:translate(-50%,16px);background:#1F1F1F;color:#fff;font-size:14px;font-weight:500;line-height:20px;padding:12px 18px;border-radius:14px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .3s cubic-bezier(.22,.8,.24,1);max-width:330px;text-align:center;width:max-content}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="side">
+    <div class="eyebrow">Interactive prototype</div>
+    <h1>HSBC UK, redesigned</h1>
+    <p>Built from the final Figma screens and the design system tokens. Tap around the phone, or jump to a flow.</p>
+    <nav class="flows" aria-label="Flows">
+      <button data-jump="home"><span>Home · Main Account</span><span>01</span></button>
+      <button data-jump="gma"><span>Global Money Account</span><span>02</span></button>
+      <button data-jump="more"><span>More actions</span><span>03</span></button>
+      <button data-jump="pay"><span>Who are you paying?</span><span>04</span></button>
+      <button data-jump="convert"><span>Convert money</span><span>05</span></button>
+      <button data-jump="cards"><span>Cards</span><span>06</span></button>
+    </nav>
+    <div class="hint">Swipe the balance to switch accounts. Edit the amount on Convert. Show card details or freeze the card on Cards.</div>
+  </aside>
+  <div class="device" id="device">
+    <div class="bezel"></div>
+    <div class="screen-wrap">
+      <div class="app" id="app">
+        <div class="status"><span>9:41</span><span class="lv">
+          <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#000"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#000"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#000"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.3c2.2 0 4.2.9 5.7 2.3l1.1-1.1A9.6 9.6 0 0 0 8 .8 9.6 9.6 0 0 0 1.2 3.5l1.1 1.1A8 8 0 0 1 8 2.3Zm0 3.2c1.3 0 2.5.5 3.4 1.4l1.1-1.1A6.4 6.4 0 0 0 8 4a6.4 6.4 0 0 0-4.5 1.8l1.1 1.1c.9-.9 2.1-1.4 3.4-1.4Zm0 3.2c-.5 0-1 .2-1.3.5L8 10.5l1.3-1.3c-.3-.3-.8-.5-1.3-.5Z" fill="#000"/></svg>
+          <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#000" opacity=".35" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#000"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="#000" opacity=".4"/></svg>
+        </span></div>
+        <div class="island"></div>
+        <div class="home-ind"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="icons.js"></script>
+<script>
+(function(){
+const app = document.getElementById('app');
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+// ---------- state ----------
+const S = {
+  acct: 0, hidden: false,
+  main: 7429.23, gma: 3329.56, gmaCcy: 'USD',
+  mainTx: [
+    {t:'Behance', d:'29 Feb, 20:37', st:'Pending', amt:'-£17.99', av:'logo'},
+    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'},
+    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'}
+  ],
+  gmaTx: [
+    {t:'To Mark', d:'31 Apr, 22:21', st:'Completed', amt:'-£47.19', av:'m'},
+    {t:'Pure Gym', d:'31 Feb, 20:37', st:'Pending', amt:'-£20.99', av:'logo'},
+    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'}
+  ],
+  conv: {from:'GBP', to:'USD', amount:1000},
+  card: 0, details: false, frozen: [false, false], cardTab: 'actions'
+};
+const RATES = {GBP:1, USD:1.24, EUR:1.17};
+const SYM = {GBP:'£', USD:'$', EUR:'€'};
+const FLAG = {GBP:'assets/uk.png', USD:'assets/us.png'};
+const fmt = n => n.toFixed(2).replace('.', ',');
+const money = (sym, n) => '<small>' + sym + '</small>' + fmt(n);
+const flagEl = c => FLAG[c] ? '<img src="' + FLAG[c] + '" alt="">' : '<span class="fl">' + SYM[c] + '</span>';
+
+// ---------- toast + sheet ----------
+const toast = document.createElement('div'); toast.className = 'toast'; app.appendChild(toast);
+let tt; function say(msg){ toast.textContent = msg; toast.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove('on'), 1900); }
+const scrim = document.createElement('div'); scrim.className = 'sheet-scrim'; app.appendChild(scrim);
+const sheet = document.createElement('div'); sheet.className = 'bsheet'; sheet.setAttribute('role','dialog'); app.appendChild(sheet);
+let onSheetClose = null;
+function openSheet(html, onClose){ sheet.innerHTML = '<div class="grab"></div>' + html; onSheetClose = onClose || null; requestAnimationFrame(() => { scrim.classList.add('open'); sheet.classList.add('open'); }); const d = $('[data-close]', sheet); if (d) d.addEventListener('click', closeSheet); }
+function closeSheet(){ scrim.classList.remove('open'); sheet.classList.remove('open'); const f = onSheetClose; onSheetClose = null; if (f) setTimeout(f, 180); }
+scrim.addEventListener('click', closeSheet);
+
+// ---------- screens ----------
+const screens = {};
+function make(name, html){ const el = document.createElement('section'); el.className = 'scr ' + name; el.dataset.name = name; el.innerHTML = html; el.style.display = 'none'; app.insertBefore(el, $('.status', app)); screens[name] = el; return el; }
+
+// HOME
+const home = make('home', `
+  <div class="blurwrap">
+    <div class="bg" data-bg="0" style="background-image:url(assets/bg-home.jpg)"></div>
+    <div class="bg" data-bg="1" style="background-image:url(assets/bg-gma.jpg);opacity:0"></div>
+    <div class="top">
+      <div class="grp"><div class="avatar" role="img" aria-label="Profile"></div><button class="gbtn" data-toast="No new notifications" aria-label="Notifications">${ic('bell')}</button></div>
+      <div class="grp"><button class="gbtn" data-toast="Search your transactions" aria-label="Search">${ic('search')}</button><button class="gbtn" data-toast="Insights: spending is down 12% this month" aria-label="Insights">${ic('insights')}</button><button class="gbtn" data-toast="Help centre" aria-label="Help">${ic('help')}</button></div>
+    </div>
+    <div class="acct"><div class="acct-track">
+      <div class="acct-pane">
+        <div class="acct-name">Main Account</div><div class="acct-no">00-00-00 00000000</div>
+        <div class="bal"><div class="amt" data-bal="0"></div><button class="eye ic" data-eye aria-label="Hide balance">${ICONS.eye}</button></div>
+      </div>
+      <div class="acct-pane">
+        <div class="gma-head"><div><div class="acct-name">Global Money Account</div><div class="acct-no">GB00000000000000000000</div></div><button class="cur" data-cur><span data-curlbl>USD</span>${ic('caret')}</button></div>
+        <div class="bal"><div class="amt" data-bal="1"></div><button class="eye ic" data-eye aria-label="Hide balance">${ICONS.eye}</button></div>
+      </div>
+    </div></div>
+    <div class="arrows"><button class="gbtn s44" data-prev aria-label="Previous account">${ic('chevL','s20')}</button><button class="gbtn s44" data-next aria-label="Next account">${ic('chevR','s20')}</button></div>
+    <div class="dots"><i class="on"></i><i></i></div>
+    <div class="actions">
+      <div class="row r1"><button class="abtn" data-go="pay">${ic('send')}Pay</button><button class="abtn" data-details><img class="img16" src="assets/bank.png" alt="">Details</button><button class="abtn" data-toast="Statements ready to download">${ic('statement')}Statements</button></div>
+      <div class="row"><button class="abtn" data-go="convert"><img class="img16" src="assets/convert.png" alt="">Convert</button><button class="abtn" data-more>${ic('add')}More Actions</button></div>
+    </div>
+    <div class="txsheet"><div data-txlist></div><button class="seeall" data-toast="Showing all transactions">See all</button></div>
+  </div>
+  <div class="scrim" data-closemenu></div>
+  <div class="menu" role="menu">
+    <button role="menuitem" data-toast="Savings: 2 goals on track"><img src="assets/savings.png" alt="">Savings</button>
+    <button role="menuitem" data-toast="Insurance">${ic('insurance','s22')}Insurance</button>
+    <button role="menuitem" data-toast="Security centre">${ic('security','s22')}Security</button>
+    <button role="menuitem" data-toast="Money Trends">${ic('wallet','s22')}Money Trends</button>
+    <button role="menuitem" data-toast="More products">${ic('products','s22')}More products</button>
+  </div>
+  <nav class="tabbar" aria-label="Main">
+    <button class="tab on" data-tab="home">${ic('home')}Home</button>
+    <button class="tab" data-tab="cards">${ic('card')}Cards</button>
+    <button class="tab" data-tab="pay">${ic('payments')}Payments</button>
+    <button class="tab" data-tab="other">${ic('more')}Other</button>
+  </nav>`);
+
+// PAY
+const pay = make('pay', `
+  <div class="bg" style="background-image:url(assets/bg-pay.jpg)"></div>
+  <div class="nav"><button class="gbtn" data-back aria-label="Back">${ic('arrowL')}</button><div class="title left">Who are you paying?</div><button class="gbtn" data-toast="Help with payments" aria-label="Help">${ic('help')}</button></div>
+  <button class="from" data-toast="Paying from Main Account"><div><div class="k">From</div><div class="v">Main Account</div></div><div class="r"><span data-mainbal></span>${ic('chevR')}</div></button>
+  <div class="opts">
+    <button class="opt" data-toast="UK Payment: choose a payee"><img src="assets/uk.png" alt=""><div class="grow"><div class="k">UK Payment</div><div class="v">Send to UK bank accounts</div></div>${ic('chevR')}</button>
+    <button class="opt" data-toast="International: 200+ countries"><img src="assets/globe.png" alt=""><div class="grow"><div class="k">International</div><div class="v">Send money abroad</div></div>${ic('chevR')}</button>
+    <button class="opt" data-go="convert"><img src="assets/move.png" alt=""><div class="grow"><div class="k">Move money</div><div class="v">Between your accounts</div></div>${ic('chevR')}</button>
+    <button class="opt" data-toast="Pay a bill or company"><img src="assets/bill.png" alt=""><div class="grow"><div class="k">Pay a bill or company</div><div class="v">Settle bills and business payments</div></div>${ic('chevR')}</button>
+  </div>`);
+
+// CONVERT
+const conv = make('convert', `
+  <div class="bg" style="background-image:url(assets/bg-pay.jpg)"></div>
+  <div class="nav"><button class="gbtn" data-back aria-label="Back">${ic('arrowL')}</button><div class="title">Convert Money</div><button class="gbtn" data-toast="Rates update every 60 seconds" aria-label="Help">${ic('help')}</button></div>
+  <button class="from" data-toast="Converting from Main Account"><div><div class="k">From</div><div class="v">Main Account</div></div><div class="r"><span data-mainbal></span>${ic('chevR')}</div></button>
+  <div class="conv">
+    <div class="blk" style="top:20px"><div class="lbl">Amount</div><div class="line"><button class="ccy" data-ccy="from"></button><label class="amtbox"><input data-in inputmode="decimal" aria-label="Amount to convert" value="1000.00"></label></div></div>
+    <div class="divider"></div>
+    <button class="swapbtn" data-swap aria-label="Swap currencies">${ic('swap')}</button>
+    <div class="blk" style="top:170px"><div class="lbl">Converted Amount</div><div class="line"><button class="ccy" data-ccy="to"></button><div class="amtbox" data-out>1240.00</div></div></div>
+  </div>
+  <div class="chip ok"><img src="assets/exchange.png" alt=""><span data-rate>Live rate £1 = $1.24</span></div>
+  <div class="chip info"><img src="assets/exchange.png" alt="">No fees applied</div>
+  <button class="cta" data-continue>Continue</button>
+  <div class="ddmenu" data-dd></div>`);
+
+// CARDS
+const cardHTML = (i, last) => `
+  <div class="dcard ${i ? 'red' : ''}" data-card="${i}">
+    <div class="logo"></div><div class="visa"></div><div class="chipimg"></div>
+    <div class="num" data-num></div>
+    <div class="meta"><div><span>Card Holder Name</span><b data-name></b></div><div><span>Expired Date</span><b>${i ? '04/29' : '10/28'}</b></div><div><span>CVV</span><b data-cvv></b></div></div>
+    <div class="frost">${ic('freeze')}Card frozen</div>
+  </div>`;
+const cards = make('cards', `
+  <div class="bg" style="background-image:url(assets/bg-cards.jpg)"></div>
+  <div class="nav"><button class="gbtn" data-back aria-label="Back">${ic('arrowL')}</button><div class="title">Cards</div><button class="gbtn" data-toast="Card help" aria-label="Help">${ic('help')}</button></div>
+  <div class="cardwrap"><div class="ctrack">${cardHTML(0)}${cardHTML(1)}</div></div>
+  <div class="carrows"><button class="gbtn" data-cprev aria-label="Previous card">${ic('chevL','s20')}</button><button class="gbtn" data-cnext aria-label="Next card">${ic('chevR','s20')}</button></div>
+  <div class="cdots"><i class="on"></i><i></i></div>
+  <button class="showbtn" data-show>Show Card Details</button>
+  <div class="csheet">
+    <div class="seg"><span class="pill"></span><button class="on" data-seg="actions">Actions</button><button data-seg="tx">Transactions</button></div>
+    <div class="cpanel" data-panel="actions">
+      <button class="caction" data-pin>${ic('cardPin')}View card PIN</button>
+      <button class="caction" data-freeze>${ic('freeze')}<span>Freeze card</span></button>
+      <button class="caction" data-toast="We'll help you report an issue">${ic('report')}Report an issue</button>
+      <button class="caction" data-toast="Gambling block is on">${ic('lock')}Gambling restrictions</button>
+    </div>
+    <div class="cpanel ctx hide" data-panel="tx"></div>
+  </div>`);
+
+// ---------- renderers ----------
+function txRow(x, cls){
+  const st = x.st === 'Pending' ? '<b class="pend">Pending</b>' : '<b class="done">Completed</b>';
+  const av = x.av === 'logo' ? '<div class="av logo"><span class="badge p"></span></div>'
+    : x.av === 'gma' ? '<div class="av gma">'+ (x.sym||'$') +'<span class="badge in">' + ic('arrowL') + '</span></div>'
+    : '<div class="av m">M<span class="badge c">' + ic('arrowR') + '</span></div>';
+  return '<div class="tx ' + (cls||'') + '">' + av + '<div class="grow"><div class="t">' + x.t + '</div><div class="s">' + x.d + ' · ' + st + '</div></div><div class="amt ' + (x.amt[0] === '+' ? 'plus' : '') + '">' + x.amt + '</div></div>';
+}
+function renderTx(animateFirst){
+  const list = S.acct ? S.gmaTx : S.mainTx;
+  $('[data-txlist]', home).innerHTML = list.slice(0, 3).map((x, i) => txRow(x, animateFirst && i === 0 ? 'new' : '')).join('');
+}
+function balText(i){
+  if (S.hidden) return '<small>' + (i ? SYM[S.gmaCcy] : '£') + '</small>••••••';
+  if (i === 0) return money('£', S.main);
+  return money(SYM[S.gmaCcy], S.gma * RATES[S.gmaCcy] / RATES.USD);
+}
+function renderBal(){
+  $$('[data-bal]', home).forEach(el => { const i = +el.dataset.bal; el.innerHTML = balText(i); el.classList.toggle('hidden', S.hidden); });
+  $$('[data-eye]', home).forEach(b => { b.innerHTML = S.hidden ? ICONS.eyeOff : ICONS.eye; b.setAttribute('aria-label', S.hidden ? 'Show balance' : 'Hide balance'); });
+  $$('[data-mainbal]').forEach(el => el.textContent = '£' + fmt(S.main));
+  $('[data-curlbl]', home).textContent = S.gmaCcy;
+}
+function countTo(i, from, to, sym){
+  const el = $('[data-bal="' + i + '"]', home); const t0 = performance.now(), dur = 900;
+  (function step(t){ const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); if (!S.hidden) el.innerHTML = money(sym, from + (to - from) * e); if (p < 1) requestAnimationFrame(step); })(t0);
+}
+function setAcct(i){
+  S.acct = Math.max(0, Math.min(1, i));
+  $('.acct-track', home).style.transform = 'translateX(' + (-50 * S.acct) + '%)';
+  $$('.dots i', home).forEach((d, k) => d.classList.toggle('on', k === S.acct));
+  $$('.bg', home).forEach(b => b.style.opacity = (+b.dataset.bg === S.acct) ? 1 : 0);
+  renderTx();
+}
+
+// cards
+const CARDS = [
+  {num:'4921 5532 1876 0329', name:'A. A. TIFFRENT', cvv:'184'},
+  {num:'4659 1043 2207 7781', name:'A. A. TIFFRENT', cvv:'552'}
+];
+function renderCards(){
+  $$('.dcard', cards).forEach((el, i) => {
+    const c = CARDS[i];
+    $('[data-num]', el).textContent = S.details ? c.num : '**** **** **** ' + c.num.slice(-4);
+    $('[data-name]', el).textContent = S.details ? c.name : '*************';
+    $('[data-cvv]', el).textContent = S.details ? c.cvv : '***';
+    el.classList.toggle('frozen', S.frozen[i]);
+  });
+  $('.ctrack', cards).style.transform = 'translateX(' + (-393 * S.card) + 'px)';
+  $$('.cdots i', cards).forEach((d, k) => d.classList.toggle('on', k === S.card));
+  $('[data-show]', cards).textContent = S.details ? 'Hide Card Details' : 'Show Card Details';
+  const fz = $('[data-freeze]', cards); fz.classList.toggle('active', S.frozen[S.card]); $('span', fz).textContent = S.frozen[S.card] ? 'Unfreeze card' : 'Freeze card';
+  $('.seg', cards).classList.toggle('tx', S.cardTab === 'tx');
+  $$('[data-seg]', cards).forEach(b => b.classList.toggle('on', b.dataset.seg === S.cardTab));
+  $$('[data-panel]', cards).forEach(p => p.classList.toggle('hide', p.dataset.panel !== S.cardTab));
+  $('[data-panel="tx"]', cards).innerHTML = (S.card ? [
+    {t:'Tesco Express', d:'Today, 08:12', st:'Completed', amt:'-£6.40', av:'m'},
+    {t:'TfL Travel', d:'Yesterday, 18:40', st:'Pending', amt:'-£2.80', av:'logo'},
+    {t:'Pret A Manger', d:'14 Nov, 12:31', st:'Completed', amt:'-£8.95', av:'m'}
+  ] : [
+    {t:'Behance', d:'29 Feb, 20:37', st:'Pending', amt:'-£17.99', av:'logo'},
+    {t:'Pure Gym', d:'1 Feb, 07:05', st:'Completed', amt:'-£20.99', av:'m'},
+    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'}
+  ]).map(x => txRow(x)).join('');
+}
+
+// convert
+function renderConv(){
+  const c = S.conv;
+  $('[data-ccy="from"]', conv).innerHTML = flagEl(c.from) + c.from + ic('caretSm');
+  $('[data-ccy="to"]', conv).innerHTML = flagEl(c.to) + c.to + ic('caretSm');
+  const rate = RATES[c.to] / RATES[c.from];
+  $('[data-out]', conv).textContent = (c.amount * rate).toFixed(2);
+  $('[data-rate]', conv).textContent = 'Live rate ' + SYM[c.from] + '1 = ' + SYM[c.to] + rate.toFixed(2);
+}
+const inp = $('[data-in]', conv);
+inp.addEventListener('input', () => { const v = inp.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); inp.value = v; S.conv.amount = parseFloat(v) || 0; renderConv(); });
+inp.addEventListener('blur', () => { inp.value = S.conv.amount.toFixed(2); });
+inp.addEventListener('focus', () => { setTimeout(() => inp.select(), 0); });
+let swapRot = 0;
+$('[data-swap]', conv).addEventListener('click', e => { swapRot += 180; e.currentTarget.style.transform = 'rotate(' + swapRot + 'deg)'; const c = S.conv; [c.from, c.to] = [c.to, c.from]; renderConv(); });
+const dd = $('[data-dd]', conv);
+function openDD(which, btn){
+  const cur = S.conv[which], other = S.conv[which === 'from' ? 'to' : 'from'];
+  dd.innerHTML = ['GBP','USD','EUR'].filter(k => k !== other).map(k => '<button data-pick="' + k + '" class="' + (k === cur ? 'sel' : '') + '">' + flagEl(k) + k + (k === cur ? ic('check','tick') : '') + '</button>').join('');
+  const r = btn.getBoundingClientRect(), a = app.getBoundingClientRect(), z = a.width / 393;
+  dd.style.left = ((r.left - a.left) / z) + 'px'; dd.style.top = ((r.bottom - a.top) / z + 6) + 'px';
+  dd.classList.add('open'); dd.dataset.which = which;
+}
+$$('[data-ccy]', conv).forEach(b => b.addEventListener('click', e => { e.stopPropagation(); dd.classList.contains('open') && dd.dataset.which === b.dataset.ccy ? dd.classList.remove('open') : openDD(b.dataset.ccy, b); }));
+dd.addEventListener('click', e => { const p = e.target.closest('[data-pick]'); if (!p) return; S.conv[dd.dataset.which] = p.dataset.pick; dd.classList.remove('open'); renderConv(); });
+conv.addEventListener('click', e => { if (!e.target.closest('[data-dd]') && !e.target.closest('[data-ccy]')) dd.classList.remove('open'); });
+$('[data-continue]', conv).addEventListener('click', () => {
+  const c = S.conv, out = c.amount * RATES[c.to] / RATES[c.from];
+  if (!c.amount) { say('Enter an amount to convert'); inp.focus(); return; }
+  if (c.from === 'GBP' && c.amount > S.main) { say('Not enough money in Main Account'); return; }
+  openSheet('<div class="okring">' + ic('check') + '</div><h3>Money converted</h3><p>' + SYM[c.from] + c.amount.toFixed(2) + ' converted to ' + SYM[c.to] + out.toFixed(2) + ' at ' + SYM[c.from] + '1 = ' + SYM[c.to] + (RATES[c.to]/RATES[c.from]).toFixed(2) + '.</p>'
+    + '<div class="kv"><div><span>From</span><b>Main Account</b></div><div><span>To</span><b>Global Money Account</b></div><div><span>Fee</span><b>' + SYM[c.from] + '0.00</b></div></div><button class="done" data-close>Done</button>',
+    () => {
+      const gbp = c.amount / RATES[c.from], usd = gbp * RATES.USD;
+      const m0 = S.main, g0 = S.gma;
+      S.main = Math.max(0, S.main - gbp); S.gma += usd;
+      S.mainTx.unshift({t:'To Global Money', d:'Just now', st:'Completed', amt:'-£' + gbp.toFixed(2), av:'m'});
+      S.gmaTx.unshift({t:'From Main Account', d:'Just now', st:'Completed', amt:'+$' + usd.toFixed(2), av:'gma', sym:'$'});
+      go('home', true);
+      setTimeout(() => { setAcct(1); renderTx(true); countTo(1, g0 * RATES[S.gmaCcy] / RATES.USD, S.gma * RATES[S.gmaCcy] / RATES.USD, SYM[S.gmaCcy]); $('[data-bal="0"]', home).innerHTML = balText(0); $$('[data-mainbal]').forEach(el => el.textContent = '£' + fmt(S.main)); }, 450);
+    });
+});
+
+// ---------- navigation ----------
+let stack = ['home'];
+function show(name){ Object.values(screens).forEach(s => { s.style.display = s.dataset.name === name ? '' : 'none'; s.className = s.className.replace(/ anim-\S+/g, ''); }); }
+function push(name){
+  const from = screens[stack[stack.length - 1]], to = screens[name];
+  if (from === to) return;
+  stack.push(name); to.style.display = ''; to.classList.add('anim-in-right'); from.classList.add('anim-out-left');
+  setTimeout(() => { from.style.display = 'none'; from.classList.remove('anim-out-left'); to.classList.remove('anim-in-right'); }, 430);
+}
+function back(){
+  if (stack.length < 2) return;
+  const from = screens[stack.pop()], to = screens[stack[stack.length - 1]];
+  to.style.display = ''; to.classList.add('anim-in-left'); from.classList.add('anim-out-right');
+  setTimeout(() => { from.style.display = 'none'; from.classList.remove('anim-out-right'); to.classList.remove('anim-in-left'); }, 430);
+  if (to === home) setTab('home');
+}
+function go(name, toRoot){
+  if (toRoot) { if (stack.length > 1) { stack = ['home', stack[stack.length - 1]]; back(); } return; }
+  push(name);
+}
+function setTab(t){ $$('.tab', home).forEach(b => b.classList.toggle('on', b.dataset.tab === t)); }
+function setMenu(open, tab){ home.classList.toggle('menu-open', open); setTab(open && tab ? tab : 'home'); }
+
+app.addEventListener('click', e => {
+  const b = e.target.closest('button,[data-closemenu]'); if (!b) return;
+  if (b.dataset.toast !== undefined) { if (home.classList.contains('menu-open')) setMenu(false); say(b.dataset.toast); return; }
+  if (b.dataset.go) { setMenu(false); push(b.dataset.go); if (b.dataset.go === 'pay') setTab('pay'); return; }
+  if (b.hasAttribute('data-back')) { back(); return; }
+  if (b.hasAttribute('data-more')) { setMenu(!home.classList.contains('menu-open')); return; }
+  if (b.hasAttribute('data-closemenu')) { setMenu(false); return; }
+  if (b.dataset.tab) {
+    const t = b.dataset.tab;
+    if (t === 'other') { setMenu(!home.classList.contains('menu-open'), 'other'); return; }
+    setMenu(false); setTab(t);
+    if (t === 'cards') push('cards'); else if (t === 'pay') push('pay');
+    return;
+  }
+  if (b.hasAttribute('data-eye')) { S.hidden = !S.hidden; renderBal(); return; }
+  if (b.hasAttribute('data-prev')) { setAcct((S.acct + 1) % 2); return; }
+  if (b.hasAttribute('data-next')) { setAcct((S.acct + 1) % 2); return; }
+  if (b.hasAttribute('data-cur')) {
+    const order = ['USD','EUR','GBP'];
+    S.gmaCcy = order[(order.indexOf(S.gmaCcy) + 1) % 3]; renderBal();
+    say('Showing balance in ' + S.gmaCcy); return;
+  }
+  if (b.hasAttribute('data-details')) {
+    openSheet(S.acct ? '<h3>Global Money Account</h3><p>Hold, send and spend in 18 currencies.</p><div class="kv"><div><span>IBAN</span><b>GB00 HBUK 0000 0000 0000 00' + ic('copy') + '</b></div><div><span>BIC</span><b>HBUKGB4B' + ic('copy') + '</b></div><div><span>Currency</span><b>' + S.gmaCcy + '</b></div></div><button class="done" data-close>Done</button>'
+      : '<h3>Main Account</h3><p>Share these details to get paid.</p><div class="kv"><div><span>Name</span><b>Ahmed Amine Tiffrent</b></div><div><span>Sort code</span><b>00-00-00' + ic('copy') + '</b></div><div><span>Account number</span><b>00000000' + ic('copy') + '</b></div></div><button class="done" data-close>Done</button>');
+    return;
+  }
+  // cards
+  if (b.hasAttribute('data-show')) { S.details = !S.details; renderCards(); return; }
+  if (b.hasAttribute('data-cprev')) { S.card = (S.card + 1) % 2; renderCards(); return; }
+  if (b.hasAttribute('data-cnext')) { S.card = (S.card + 1) % 2; renderCards(); return; }
+  if (b.dataset.seg) { S.cardTab = b.dataset.seg; renderCards(); return; }
+  if (b.hasAttribute('data-freeze')) { S.frozen[S.card] = !S.frozen[S.card]; renderCards(); say(S.frozen[S.card] ? 'Card frozen. Unfreeze it any time.' : 'Card unfrozen'); return; }
+  if (b.hasAttribute('data-pin')) {
+    openSheet('<h3>Your card PIN</h3><p>Make sure no one can see your screen.</p><div class="pin"><i>•</i><i>•</i><i>•</i><i>•</i></div><button class="done" data-close>Hide PIN</button>');
+    const pins = $$('.pin i', sheet); setTimeout(() => '2580'.split('').forEach((d, k) => setTimeout(() => { if (pins[k]) pins[k].textContent = d; }, 160 * k)), 700);
+    return;
+  }
+});
+
+// swipe between accounts and cards
+function swipe(el, get, set){
+  let x0 = null, y0 = 0;
+  el.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; x0 = e.clientX; y0 = e.clientY; });
+  el.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0, dy = e.clientY - y0; x0 = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) set(get() + (dx < 0 ? 1 : -1)); });
+  el.addEventListener('pointercancel', () => { x0 = null; });
+}
+swipe($('.acct', home), () => S.acct, setAcct);
+swipe($('.cardwrap', cards), () => S.card, i => { S.card = Math.max(0, Math.min(1, i)); renderCards(); });
+
+// ---------- boot ----------
+renderBal(); setAcct(0); renderConv(); renderCards(); show('home');
+
+function jump(name){
+  closeSheet(); setMenu(false); stack = ['home']; S.details = false;
+  if (name === 'gma') { show('home'); setAcct(1); setTab('home'); }
+  else if (name === 'more') { show('home'); setAcct(0); setMenu(true); }
+  else if (['pay','convert','cards'].includes(name)) { stack = ['home', name]; show(name); setAcct(0); setTab(name === 'convert' ? 'home' : name); }
+  else { show('home'); setAcct(0); setTab('home'); }
+  renderCards();
+}
+$$('[data-jump]').forEach(b => b.addEventListener('click', () => { jump(b.dataset.jump); history.replaceState(null, '', '#' + b.dataset.jump); }));
+window.__hsbc = { jump };
+if (location.hash) jump(location.hash.slice(1));
+
+// fit the phone to the window on desktop
+const dev = document.getElementById('device');
+function fit(){ if (innerWidth <= 480) { dev.style.transform = ''; return; } const s = Math.min(1, (innerHeight - 48) / 876); dev.style.transform = s < 1 ? 'scale(' + s + ')' : ''; }
+addEventListener('resize', fit); fit();
+})();
+</script>
+</body>
+</html>
