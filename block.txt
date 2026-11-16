@@ -72,6 +72,8 @@
   .hs-x .hs-status{grid-template-columns:1fr}
   .hs-x .hs-type{padding:4px 18px}
   .hs-x .hs-type div{flex-direction:column;gap:4px}
+  .hs-x .hs-type span{white-space:normal;max-width:100%}
+  .hs-x .hs-type div:nth-child(-n+2) span{font-size:30px!important;line-height:36px!important}
 }
 </style>
 <template id="hs-x-tpl">
