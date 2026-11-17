@@ -28,7 +28,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 button:focus-visible,input:focus-visible{outline:2px solid var(--blue-500);outline-offset:2px}
 
 /* ---------- stage ---------- */
-.stage{height:100%;display:flex;align-items:center;justify-content:center;gap:56px}
+.stage{height:100%;display:flex;align-items:center;justify-content:center}
 .side{width:260px;display:flex;flex-direction:column;gap:20px}
 .side h1{font-size:28px;font-weight:600;line-height:34px;margin:0;letter-spacing:-.02em}
 .side p{margin:0;color:var(--stage-ink2);font-size:14px;line-height:21px}
@@ -282,20 +282,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-500);outli
 </head>
 <body>
 <div class="stage">
-  <aside class="side">
-    <div class="eyebrow">Interactive prototype</div>
-    <h1>HSBC UK, redesigned</h1>
-    <p>Built from the final Figma screens and the design system tokens. Tap around the phone, or jump to a flow.</p>
-    <nav class="flows" aria-label="Flows">
-      <button data-jump="home"><span>Home · Main Account</span><span>01</span></button>
-      <button data-jump="gma"><span>Global Money Account</span><span>02</span></button>
-      <button data-jump="more"><span>More actions</span><span>03</span></button>
-      <button data-jump="pay"><span>Who are you paying?</span><span>04</span></button>
-      <button data-jump="convert"><span>Convert money</span><span>05</span></button>
-      <button data-jump="cards"><span>Cards</span><span>06</span></button>
-    </nav>
-    <div class="hint">Swipe the balance to switch accounts. Edit the amount on Convert. Show card details or freeze the card on Cards.</div>
-  </aside>
   <div class="device" id="device">
     <div class="bezel"></div>
     <div class="screen-wrap">
