@@ -171,7 +171,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-500);outli
 .from .r .ic{width:16px;height:16px}
 
 /* pay */
-.opts{position:absolute;left:16px;right:16px;top:284px;display:flex;flex-direction:column;gap:10px;z-index:5}
+.opts{position:absolute;left:14px;right:14px;top:228px;display:flex;flex-direction:column;gap:10px;z-index:5}
 .opt{height:100px;border-radius:12px;background:var(--n50);display:flex;align-items:center;gap:24px;padding:0 16px 0 16px;text-align:left;transition:transform .15s ease,background .2s}
 .opt:active{transform:scale(.98);background:#EAEAEA}
 .opt img{width:40px;height:40px;flex:none}
@@ -188,8 +188,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blue-500);outli
 .ccy{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:500;color:#1F1F1F;padding:0}
 .ccy img{width:45px;height:45px;border-radius:50%}
 .ccy .ic{width:20px;height:20px;margin-left:-6px;color:var(--n500);opacity:.6}
-.amtbox{width:117px;height:45px;border-radius:8px;background:var(--n100);display:flex;align-items:center;justify-content:flex-end;padding:0 16px;font-size:20px;font-weight:600;color:#1F1F1F;font-variant-numeric:tabular-nums;position:relative}
-.amtbox input{position:absolute;inset:0;width:100%;border:0;background:transparent;font:inherit;color:inherit;text-align:right;padding:0 16px;outline:0;border-radius:8px}
+.amtbox{width:146px;height:45px;border-radius:8px;background:var(--n100);display:flex;align-items:center;justify-content:flex-end;padding:0 14px;font-size:20px;font-weight:600;color:#1F1F1F;font-variant-numeric:tabular-nums;position:relative}
+.amtbox input{position:absolute;inset:0;width:100%;border:0;background:transparent;font:inherit;color:inherit;text-align:right;padding:0 14px;outline:0;border-radius:8px}
 .amtbox:focus-within{box-shadow:0 0 0 2px var(--red-600)}
 .conv .divider{position:absolute;left:0;right:0;top:133px;height:1px;background:var(--n100)}
 .swapbtn{position:absolute;left:50%;top:111px;width:44px;height:44px;margin-left:-22px;border-radius:50%;background:var(--bg-brand);color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .4s cubic-bezier(.22,.8,.24,1)}
@@ -323,14 +323,14 @@ const S = {
   acct: 0, hidden: false,
   main: 7429.23, gma: 3329.56, gmaCcy: 'USD',
   mainTx: [
-    {t:'Behance', d:'29 Feb, 20:37', st:'Pending', amt:'-£17.99', av:'logo'},
-    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'},
-    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'}
+    {t:'Behance', d:'Today, 09:14', st:'Pending', amt:'-£17.99', av:'logo'},
+    {t:'To Marvilo', d:'12 Nov, 22:21', st:'Completed', amt:'-£27.19', av:'m'},
+    {t:'To Marvilo', d:'5 Nov, 18:04', st:'Completed', amt:'-£45.00', av:'m'}
   ],
   gmaTx: [
-    {t:'To Mark', d:'31 Apr, 22:21', st:'Completed', amt:'-£47.19', av:'m'},
-    {t:'Pure Gym', d:'31 Feb, 20:37', st:'Pending', amt:'-£20.99', av:'logo'},
-    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'}
+    {t:'Pure Gym', d:'Yesterday, 07:05', st:'Pending', amt:'-$25.99', av:'logo', sym:'$'},
+    {t:'To Mark', d:'10 Nov, 22:21', st:'Completed', amt:'-$58.50', av:'m', sym:'$'},
+    {t:'From Main Account', d:'3 Nov, 14:10', st:'Completed', amt:'+$500.00', av:'gma', sym:'$'}
   ],
   conv: {from:'GBP', to:'USD', amount:1000},
   card: 0, details: false, frozen: [false, false], cardTab: 'actions'
@@ -338,7 +338,7 @@ const S = {
 const RATES = {GBP:1, USD:1.24, EUR:1.17};
 const SYM = {GBP:'£', USD:'$', EUR:'€'};
 const FLAG = {GBP:'assets/uk.png', USD:'assets/us.png'};
-const fmt = n => n.toFixed(2).replace('.', ',');
+const fmt = n => n.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 const money = (sym, n) => '<small>' + sym + '</small>' + fmt(n);
 const flagEl = c => FLAG[c] ? '<img src="' + FLAG[c] + '" alt="">' : '<span class="fl">' + SYM[c] + '</span>';
 
@@ -416,10 +416,10 @@ const conv = make('convert', `
   <div class="nav"><button class="gbtn" data-back aria-label="Back">${ic('arrowL')}</button><div class="title">Convert Money</div><button class="gbtn" data-toast="Rates update every 60 seconds" aria-label="Help">${ic('help')}</button></div>
   <button class="from" data-toast="Converting from Main Account"><div><div class="k">From</div><div class="v">Main Account</div></div><div class="r"><span data-mainbal></span>${ic('chevR')}</div></button>
   <div class="conv">
-    <div class="blk" style="top:20px"><div class="lbl">Amount</div><div class="line"><button class="ccy" data-ccy="from"></button><label class="amtbox"><input data-in inputmode="decimal" aria-label="Amount to convert" value="1000.00"></label></div></div>
+    <div class="blk" style="top:20px"><div class="lbl">Amount</div><div class="line"><button class="ccy" data-ccy="from"></button><label class="amtbox"><input data-in inputmode="decimal" aria-label="Amount to convert" value="1,000.00"></label></div></div>
     <div class="divider"></div>
     <button class="swapbtn" data-swap aria-label="Swap currencies">${ic('swap')}</button>
-    <div class="blk" style="top:170px"><div class="lbl">Converted Amount</div><div class="line"><button class="ccy" data-ccy="to"></button><div class="amtbox" data-out>1240.00</div></div></div>
+    <div class="blk" style="top:170px"><div class="lbl">Converted Amount</div><div class="line"><button class="ccy" data-ccy="to"></button><div class="amtbox" data-out>1,240.00</div></div></div>
   </div>
   <div class="chip ok"><img src="assets/exchange.png" alt=""><span data-rate>Live rate £1 = $1.24</span></div>
   <div class="chip info"><img src="assets/exchange.png" alt="">No fees applied</div>
@@ -431,7 +431,7 @@ const cardHTML = (i, last) => `
   <div class="dcard ${i ? 'red' : ''}" data-card="${i}">
     <div class="logo"></div><div class="visa"></div><div class="chipimg"></div>
     <div class="num" data-num></div>
-    <div class="meta"><div><span>Card Holder Name</span><b data-name></b></div><div><span>Expired Date</span><b>${i ? '04/29' : '10/28'}</b></div><div><span>CVV</span><b data-cvv></b></div></div>
+    <div class="meta"><div><span>Card Holder Name</span><b data-name></b></div><div><span>Expiry Date</span><b>${i ? '04/29' : '10/28'}</b></div><div><span>CVV</span><b data-cvv></b></div></div>
     <div class="frost">${ic('freeze')}Card frozen</div>
   </div>`;
 const cards = make('cards', `
@@ -457,7 +457,7 @@ function txRow(x, cls){
   const st = x.st === 'Pending' ? '<b class="pend">Pending</b>' : '<b class="done">Completed</b>';
   const av = x.av === 'logo' ? '<div class="av logo"><span class="badge p"></span></div>'
     : x.av === 'gma' ? '<div class="av gma">'+ (x.sym||'$') +'<span class="badge in">' + ic('arrowL') + '</span></div>'
-    : '<div class="av m">M<span class="badge c">' + ic('arrowR') + '</span></div>';
+    : '<div class="av m">' + x.t.replace(/^(To|From) /, '').charAt(0) + '<span class="badge c">' + ic('arrowR') + '</span></div>';
   return '<div class="tx ' + (cls||'') + '">' + av + '<div class="grow"><div class="t">' + x.t + '</div><div class="s">' + x.d + ' · ' + st + '</div></div><div class="amt ' + (x.amt[0] === '+' ? 'plus' : '') + '">' + x.amt + '</div></div>';
 }
 function renderTx(animateFirst){
@@ -512,9 +512,9 @@ function renderCards(){
     {t:'TfL Travel', d:'Yesterday, 18:40', st:'Pending', amt:'-£2.80', av:'logo'},
     {t:'Pret A Manger', d:'14 Nov, 12:31', st:'Completed', amt:'-£8.95', av:'m'}
   ] : [
-    {t:'Behance', d:'29 Feb, 20:37', st:'Pending', amt:'-£17.99', av:'logo'},
-    {t:'Pure Gym', d:'1 Feb, 07:05', st:'Completed', amt:'-£20.99', av:'m'},
-    {t:'To Marvilo', d:'5 Dec 2025, 22:21', st:'Completed', amt:'-£27.19', av:'m'}
+    {t:'Behance', d:'Today, 09:14', st:'Pending', amt:'-£17.99', av:'logo'},
+    {t:'Sainsbury\'s', d:'15 Nov, 17:22', st:'Completed', amt:'-£23.40', av:'m'},
+    {t:'Spotify', d:'1 Nov, 07:05', st:'Completed', amt:'-£11.99', av:'m'}
   ]).map(x => txRow(x)).join('');
 }
 
@@ -524,12 +524,12 @@ function renderConv(){
   $('[data-ccy="from"]', conv).innerHTML = flagEl(c.from) + c.from + ic('caretSm');
   $('[data-ccy="to"]', conv).innerHTML = flagEl(c.to) + c.to + ic('caretSm');
   const rate = RATES[c.to] / RATES[c.from];
-  $('[data-out]', conv).textContent = (c.amount * rate).toFixed(2);
+  $('[data-out]', conv).textContent = fmt(c.amount * rate);
   $('[data-rate]', conv).textContent = 'Live rate ' + SYM[c.from] + '1 = ' + SYM[c.to] + rate.toFixed(2);
 }
 const inp = $('[data-in]', conv);
 inp.addEventListener('input', () => { const v = inp.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'); inp.value = v; S.conv.amount = parseFloat(v) || 0; renderConv(); });
-inp.addEventListener('blur', () => { inp.value = S.conv.amount.toFixed(2); });
+inp.addEventListener('blur', () => { inp.value = fmt(S.conv.amount); });
 inp.addEventListener('focus', () => { setTimeout(() => inp.select(), 0); });
 let swapRot = 0;
 $('[data-swap]', conv).addEventListener('click', e => { swapRot += 180; e.currentTarget.style.transform = 'rotate(' + swapRot + 'deg)'; const c = S.conv; [c.from, c.to] = [c.to, c.from]; renderConv(); });
@@ -548,14 +548,14 @@ $('[data-continue]', conv).addEventListener('click', () => {
   const c = S.conv, out = c.amount * RATES[c.to] / RATES[c.from];
   if (!c.amount) { say('Enter an amount to convert'); inp.focus(); return; }
   if (c.from === 'GBP' && c.amount > S.main) { say('Not enough money in Main Account'); return; }
-  openSheet('<div class="okring">' + ic('check') + '</div><h3>Money converted</h3><p>' + SYM[c.from] + c.amount.toFixed(2) + ' converted to ' + SYM[c.to] + out.toFixed(2) + ' at ' + SYM[c.from] + '1 = ' + SYM[c.to] + (RATES[c.to]/RATES[c.from]).toFixed(2) + '.</p>'
+  openSheet('<div class="okring">' + ic('check') + '</div><h3>Money converted</h3><p>' + SYM[c.from] + fmt(c.amount) + ' converted to ' + SYM[c.to] + fmt(out) + ' at ' + SYM[c.from] + '1 = ' + SYM[c.to] + (RATES[c.to]/RATES[c.from]).toFixed(2) + '.</p>'
     + '<div class="kv"><div><span>From</span><b>Main Account</b></div><div><span>To</span><b>Global Money Account</b></div><div><span>Fee</span><b>' + SYM[c.from] + '0.00</b></div></div><button class="done" data-close>Done</button>',
     () => {
       const gbp = c.amount / RATES[c.from], usd = gbp * RATES.USD;
       const m0 = S.main, g0 = S.gma;
       S.main = Math.max(0, S.main - gbp); S.gma += usd;
-      S.mainTx.unshift({t:'To Global Money', d:'Just now', st:'Completed', amt:'-£' + gbp.toFixed(2), av:'m'});
-      S.gmaTx.unshift({t:'From Main Account', d:'Just now', st:'Completed', amt:'+$' + usd.toFixed(2), av:'gma', sym:'$'});
+      S.mainTx.unshift({t:'To Global Money', d:'Just now', st:'Completed', amt:'-£' + fmt(gbp), av:'m'});
+      S.gmaTx.unshift({t:'From Main Account', d:'Just now', st:'Completed', amt:'+$' + fmt(usd), av:'gma', sym:'$'});
       go('home', true);
       setTimeout(() => { setAcct(1); renderTx(true); countTo(1, g0 * RATES[S.gmaCcy] / RATES.USD, S.gma * RATES[S.gmaCcy] / RATES.USD, SYM[S.gmaCcy]); $('[data-bal="0"]', home).innerHTML = balText(0); $$('[data-mainbal]').forEach(el => el.textContent = '£' + fmt(S.main)); }, 450);
     });
